@@ -17,7 +17,8 @@ start:
 	call do_frame
 	call do_frame
 	call do_frame
-	call press_anykey
+; TODO: need to add as a non-interactive option for `make ci-test`
+;	call press_anykey
 	call restore_mode
 	jmp goodbye
 initialize_stars:
@@ -72,8 +73,8 @@ plot_stars:
 delay:
 	;; TODO: replace this 286/AT only code with something for PC and XT
 	mov ah, 86h		; INT 15h, 86h - Wait
-	mov cx, 0fh
-	mov dx, 04240h		; F4240 = 1,000,000 microseconds
+	mov cx, 07h
+	mov dx, 0A120h		; 7a120 = 500,000 ; F4240 = 1,000,000 microseconds
 	int 15h
 
 	ret
