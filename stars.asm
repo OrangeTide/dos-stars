@@ -5,9 +5,14 @@
 cpu 286
 bits 16
 org 100h
-num_stars:	equ	20
+num_stars:	equ	40
 section .text
 start:
+	; set random seed = 0
+	xor ax, ax
+	xor dx, dx
+	call srand
+
 	call save_mode
 	call set_game_mode
 	call initialize_stars
@@ -22,15 +27,19 @@ start:
 	call restore_mode
 	jmp goodbye
 initialize_stars:
-	xor bx, bx
 	mov cx, num_stars
 	mov si, stars
 .loop:
-	;; TODO: work out some kind of random generator
-	add ax, 3			; move over slightly
-	add bx, 80			; next Y (80-bytes per line)
+	call rand
+	and ax, 07fh		; restrict Y axis to 0-127
+	mov dx, 80		; multiply by screen pitch (80 bytes)
+	mul dx
+	mov [si+2], ax		; save star_y[i]
+
+	call rand
+	and ax, 03fh		; restrict X axis to 0-63
 	mov [si+0], ax		; save star_x[i]
-	mov [si+2], bx		; save star_y[i]
+
 	add si, 4		; 2+2 ; record size of stars[]
 	loop .loop
 	ret
@@ -52,6 +61,7 @@ update_stars:
 	mov si, stars
 .loop:
 	inc WORD [si+0]		; update star_x[i] ; TODO: use xrate
+	; TODO: regenerate stars that fall off the screen
 ;	add [si+2], 80		; increment star_y[i]
 	add si, 4		; 2+2 ; record size of stars[]
 	loop .loop
@@ -121,11 +131,46 @@ goodbye:
 	mov ah, 09h	; INT 21h, 09h : Write string to STDOUT
 	int 21h
 	int 20h
+srand:
+	mov [rand_seed], ax
+	mov [rand_seed + 2], dx
+	ret
+rand:
+	; pseudo-random number generator
+	;   rand_seed = (rand_seed * 214013 + 2531011) & 0x7fffffff;
+	;   out = (rand_seed >> 16) & 0x7fff;
+	; Return: DX:AX
+
+	push bx
+	push cx
+
+	mov ax, 043fdh		; lower word of 214013
+	mov bx, [rand_seed]	; load lower word of rand_seed
+	imul WORD [rand_seed]
+	add ax, 09ec3h		; lower word of 2531011
+	mov [rand_seed], ax	; dx:ax contains first step, save lower word
+	mov cx, dx		; save dx from first step
+
+	mov ax, 00003h		; upper word of 214013
+	mov bx, [rand_seed + 2]	; load upper word of rand_seed
+	imul bx
+	mov dx, ax		; dx:ax contains second step, but we will discard dx
+	add dx, cx		; add dx from second step
+
+	add dx, 00026h		; upper word of 2531011
+	and dx, 07fffh		; upper word of 0x7fffffff
+	mov [rand_seed + 2], dx	; save upper word
+
+	pop cx
+	pop bx
+
+	ret
 section .data
 	press_msg db 'Press Any Key ...$'
 	goodbye_msg db 'Thank you!'
 	crlf db 13, 10,'$'
 section .bss
+rand_seed:	resd 1
 saved_mode:	resb 1
 video_seg:	resb 2
 stars		resb (2+2)*num_stars
