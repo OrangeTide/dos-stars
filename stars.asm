@@ -2,7 +2,7 @@
 ; Copyright (C) 2020 by Jon Mayo <jon@rm-f.net>
 ; the BSD Zero Clause license
 ;
-.286
+.8086
 .model tiny
 ASSUME DS:_DATA
 ASSUME DS:_BSS
@@ -84,13 +84,20 @@ plot_stars:
 	loop @B
 
 delay:
-	;; TODO: replace this 286/AT only code with something for PC and XT
-	mov ah, 86h		; INT 15h, 86h - Wait
-	mov cx, 07h
-	mov dx, 0A120h		; 7a120 = 500,000 ; F4240 = 1,000,000 microseconds
-	int 15h
+	mov ah, 2Ch
+	int 21h
+	mov bx, dx		; save seconds and 1/100th seconds result
+
+	; check system time until a second or more has elapsed
+@@::
+	mov ah, 2Ch
+	int 21h
+
+	cmp dh, bh		; has the DH=second field changed since the first call
+	jz @B
 
 	ret
+
 
 wait_retrace:
 ;; TODO: do a better job and wait for a 0->1 transition
