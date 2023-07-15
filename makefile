@@ -1,17 +1,18 @@
 TOOLCHAIN_DIR= toolchain/
-TOOLS= $(TOOLCHAIN_DIR)jwasm
-COMMAND.asm= $(TOOLCHAIN_DIR)jwasm -q -bin $<
-%.BIN: %.asm | $(TOOLS)
+JWASM= $(TOOLCHAIN_DIR)jwasm
+COMMAND.asm= $(JWASM) -q -bin $<
+%.BIN: %.asm | $(JWASM)
 	$(COMMAND.asm)
 %.com: %.BIN
 	mv $< $@
-%/ :
+%/:
 	mkdir -p $@
 ########################################################################
-.PHONY:	all clean test ci-test
-all: stars.com num.com
+.PHONY:	all clean distclean test ci-test
+E= stars.com num.com randpix.com hello.com
+all:	$E
 clean:
-	$(RM) stars.com num.com
+	$(RM) $E
 ci-test: all
 	SDL_VIDEODRIVER=dummy timeout -k1 10.0s dosbox -conf dosbox.conf
 test:
@@ -20,6 +21,7 @@ distclean: clean
 	$(RM) $(TOOLS)
 	rm -rf JWasm
 ########################################################################
+# download and build JWasm automatically
 $(TOOLCHAIN_DIR)jwasm: GIT_REPOS="https://github.com/JWasm/JWasm"
 $(TOOLCHAIN_DIR)jwasm: | ${TOOLCHAIN_DIR}
 	if [ \! -d "JWasm" ]; then git clone ${GIT_REPOS} ; fi
