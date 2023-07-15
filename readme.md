@@ -1,14 +1,16 @@
 # DOS Stars
 
-**Currently a work-in-progress : the implementation does not actually do what it is supposed to do yet**
-
 [![Build Status](https://travis-ci.com/OrangeTide/dos-stars.svg?token=YziQ9JEpcDSQoy55tXGQ&branch=master)](https://travis-ci.com/OrangeTide/dos-stars)
+
 ![GitHub](https://img.shields.io/github/license/OrangeTide/dos-stars)
+
 [![License: CC0-1.0](https://licensebuttons.net/l/zero/1.0/80x15.png)](http://creativecommons.org/publicdomain/zero/1.0/)
 
 ## Introduction
 
 Displays a scrolling starfield in CGA on 16-bit realmode DOS.
+
+Code is very simplistic assembler and is more of an instructional example than anything serious.
 
 ![Starting](images/run.gif)
 
@@ -18,8 +20,15 @@ Displays a scrolling starfield in CGA on 16-bit realmode DOS.
 
 ### Prerequisites
 
- * [nasm](https://www.nasm.us/)
- * [DOSBox](https://www.dosbox.com/) or [Bochs](http://bochs.sourceforge.net/) or [PCem](https://pcem-emulator.co.uk/)
+ * A MASM compatible toolchain:
+   * [ML64.EXE](https://learn.microsoft.com/en-us/cpp/assembler/masm/masm-for-x64-ml64-exe?view=msvc-170)
+   * [JWasm](https://github.com/JWasm/JWasm) and [JWlink](https://github.com/JWasm/JWlink)
+ * A DOS or PC emulator, any one of:
+   * [DOSBox](https://www.dosbox.com/)
+   * [Bochs](http://bochs.sourceforge.net/)
+   * [PCem](https://pcem-emulator.co.uk/)
+   * [XTulator](https://xtulator.com/)
+   * [86Box](https://86box.net/)
 
 ### Building
 

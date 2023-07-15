@@ -3,8 +3,8 @@ dist: xenial
 addons:
   apt:
     packages:
-      - nasm
       - dosbox
 script:
   - make all
   - make ci-test
+  - make distclean

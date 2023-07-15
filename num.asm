@@ -3,11 +3,11 @@
 ; the BSD Zero Clause license
 ;
 
-cpu 286
-bits 16
-org 100h
+.286
 
-section .text
+ASSUME DS:_BSS
+_TEXT SEGMENT
+	org 100h
 start:
 
 	mov al, 89
@@ -48,9 +48,9 @@ printbyte:	;	print a number from 0 to 99
 printword:
 	lea bx, [scratch+20]	; bx is current position in scratch buffer
 	dec bx			; scratch buffer is in reverse order
-	mov BYTE [bx], '$'	; terminate string for INT 21h, 09h
+	mov BYTE PTR [bx], '$'	; terminate string for INT 21h, 09h
 
-.nextdigit:
+@@: ; next digit
 	xor dx, dx
 	mov cx, 10
 	div cx
@@ -60,17 +60,18 @@ printword:
 	mov [bx], dl	; add character to scratch buffer
 
 	cmp ax, 0	; stop if working value is 0
-	jz .done
+	jz done
 
-	jmp .nextdigit
-.done:
+	jmp @B
+done:
 	mov dx, bx
 	mov ah, 09h     ; INT 21h, 09h : Write string to STDOUT
 	int 21h
 
 	; ret
 	jmp newline
-
-section .data
-section .bss
-scratch:	resb 20
+_TEXT ENDS
+_BSS SEGMENT
+	scratch		db 20 DUP(0)
+_BSS ENDS
+END
